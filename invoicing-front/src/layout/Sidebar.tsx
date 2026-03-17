@@ -1,70 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
 interface MenuItem {
   label: string;
   icon: string;
-  subItems: {
-    label: string;
-    route: string;
-  }[];
+  route: string;
 }
 
 const menuItems: MenuItem[] = [
   {
     label: 'Addresses',
     icon: '📍',
-    subItems: [
-      { label: 'Save', route: '/addresses/create' },
-      { label: 'List all', route: '/addresses/get-all' },
-    ],
+    route: '/addresses/get-all',
   },
   {
     label: 'Customers',
     icon: '👤',
-    subItems: [
-      { label: 'Save', route: '/customers/create' },
-      { label: 'List all', route: '/customers/get-all' },
-    ],
+    route: '/customers/get-all',
   },
   {
     label: 'Invoices',
     icon: '📄',
-    subItems: [
-      { label: 'Save', route: '/invoices/create' },
-      { label: 'List all', route: '/invoices/get-all' },
-    ],
+    route: '/invoices/get-all',
   },
   {
     label: 'InvoiceItems',
     icon: '📦',
-    subItems: [
-      { label: 'Save', route: '/invoice-items/create' },
-      { label: 'List all', route: '/invoice-items/get-all' },
-    ],
+    route: '/invoice-items/get-all',
   },
 ];
 
 /**
  * Sidebar Component
- * Fixed sidebar with collapsible menu items
+ * Fixed sidebar with simple vertical menu (no accordion)
+ * Click on menu item → Navigate directly to list page
  */
 export const Sidebar: React.FC = () => {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Invoices']);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const toggleExpand = (label: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(label)
-        ? prev.filter((item) => item !== label)
-        : [...prev, label]
-    );
-  };
-
-  const isSubItemActive = (route: string): boolean => {
-    return location.pathname === route;
+  const isMenuItemActive = (route: string): boolean => {
+    return location.pathname.startsWith(route.split('/').slice(0, 2).join('/'));
   };
 
   return (
@@ -75,32 +52,15 @@ export const Sidebar: React.FC = () => {
 
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
-          <div key={item.label} className="menu-item">
-            <button
-              className={`menu-label ${expandedItems.includes(item.label) ? 'expanded' : ''}`}
-              onClick={() => toggleExpand(item.label)}
-              aria-expanded={expandedItems.includes(item.label)}
-            >
-              <span className="menu-icon">{item.icon}</span>
-              <span className="menu-text">{item.label}</span>
-              <span className="menu-arrow">›</span>
-            </button>
-
-            {expandedItems.includes(item.label) && (
-              <ul className="submenu">
-                {item.subItems.map((subItem) => (
-                  <li key={subItem.route}>
-                    <button
-                      className={`submenu-link ${isSubItemActive(subItem.route) ? 'active' : ''}`}
-                      onClick={() => navigate(subItem.route)}
-                    >
-                      {subItem.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <button
+            key={item.label}
+            className={`menu-item ${isMenuItemActive(item.route) ? 'active' : ''}`}
+            onClick={() => navigate(item.route)}
+            title={item.label}
+          >
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-text">{item.label}</span>
+          </button>
         ))}
       </nav>
 

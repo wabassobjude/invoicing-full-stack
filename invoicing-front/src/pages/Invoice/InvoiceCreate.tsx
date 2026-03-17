@@ -8,7 +8,11 @@ import { invoiceSchema, type InvoiceFormData } from '../../schemas/validationSch
 import type { Invoice, Customer, Address } from '../../types';
 import '../../styles/Pages.css';
 
-export const InvoiceCreate: React.FC = () => {
+interface InvoiceCreateProps {
+  onSuccess?: () => void;
+}
+
+export const InvoiceCreate: React.FC<InvoiceCreateProps> = ({ onSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
@@ -131,7 +135,11 @@ export const InvoiceCreate: React.FC = () => {
         } as Address,
       };
       await invoiceService.createInvoice(invoice as Invoice);
-      navigate('/invoices/get-all');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/invoices/get-all');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create invoice');
     } finally {

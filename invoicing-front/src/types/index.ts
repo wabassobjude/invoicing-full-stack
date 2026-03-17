@@ -30,6 +30,7 @@ export interface Customer {
  * @property unitPrice - Price per unit
  * @property totalPrice - Calculated as quantity × unitPrice
  * @property invoice - Reference to parent Invoice (optional)
+ * @property invoiceId - ID of the associated invoice (for form submission)
  */
 export interface InvoiceItem {
   id?: number;
@@ -38,6 +39,7 @@ export interface InvoiceItem {
   unitPrice: number;
   totalPrice?: number;
   invoice?: Invoice;
+  invoiceId?: number;
 }
 
 /**

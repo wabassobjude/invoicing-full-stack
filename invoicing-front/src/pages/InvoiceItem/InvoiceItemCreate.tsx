@@ -1,17 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DynamicForm, { type FormFieldConfig } from '../../components/DynamicForm';
 import { invoiceItemService } from '../../services/invoiceItemService';
+import { invoiceService } from '../../services/invoiceService';
 import { invoiceItemSchema, type InvoiceItemFormData } from '../../schemas/validationSchemas';
-import type { InvoiceItem } from '../../types';
+import type { InvoiceItem, Invoice } from '../../types';
 import '../../styles/Pages.css';
 
-export const InvoiceItemCreate: React.FC = () => {
+interface InvoiceItemCreateProps {
+  onSuccess?: () => void;
+}
+
+export const InvoiceItemCreate: React.FC<InvoiceItemCreateProps> = ({ onSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
+  const [invoiceOptions, setInvoiceOptions] = useState<{ value: number; label: string }[]>([]);
   const navigate = useNavigate();
 
+  // Fetch invoices on component mount
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        setIsLoadingInvoices(true);
+        const response = await invoiceService.getAllInvoices(0, 100);
+        const invoices = (Array.isArray(response.content) ? response.content : []) as Invoice[];
+        const invoiceOpts = invoices.map((invoice: Invoice) => ({
+          value: invoice.id || 0,
+          label: invoice.invoiceNumber,
+        }));
+        setInvoiceOptions(invoiceOpts);
+      } catch (err) {
+        console.error('Failed to load invoices:', err);
+        setError('Failed to load invoices');
+      } finally {
+        setIsLoadingInvoices(false);
+      }
+    };
+
+    fetchInvoices();
+  }, []);
+
   const fields: FormFieldConfig[] = [
+    {
+      name: 'invoiceId',
+      label: 'Invoice',
+      type: 'select',
+      options: invoiceOptions,
+      isLoadingOptions: isLoadingInvoices,
+      placeholder: 'Select an invoice',
+      required: true,
+    },
     {
       name: 'name',
       label: 'Item Name',
@@ -41,13 +80,31 @@ export const InvoiceItemCreate: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Validate selected invoice
+      const selectedInvoiceId = Number(data.invoiceId);
+      const selectedInvoice = invoiceOptions.find(opt => opt.value === selectedInvoiceId);
+
+      if (!selectedInvoice) {
+        setError('Please select a valid invoice');
+        setIsLoading(false);
+        return;
+      }
+
       const item: Partial<InvoiceItem> = {
         name: data.name,
         quantity: data.quantity,
         unitPrice: data.unitPrice,
+        invoice: {
+          id: selectedInvoiceId,
+        } as Invoice,
       };
       await invoiceItemService.createItem(item as InvoiceItem);
-      navigate('/invoice-items/get-all');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/invoice-items/get-all');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create invoice item');
     } finally {

@@ -10,7 +10,11 @@ import '../../styles/Pages.css';
  * AddressCreate Page
  * Form to create a new address
  */
-export const AddressCreate: React.FC = () => {
+interface AddressCreateProps {
+  onSuccess?: () => void;
+}
+
+export const AddressCreate: React.FC<AddressCreateProps> = ({ onSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -58,7 +62,11 @@ export const AddressCreate: React.FC = () => {
       setIsLoading(true);
       setError(null);
       await addressService.createAddress(data as Address);
-      navigate('/addresses/get-all');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/addresses/get-all');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create address');
     } finally {

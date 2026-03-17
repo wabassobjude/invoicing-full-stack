@@ -7,7 +7,11 @@ import { customerSchema, type CustomerFormData } from '../../schemas/validationS
 import type { Customer, Address } from '../../types';
 import '../../styles/Pages.css';
 
-export const CustomerCreate: React.FC = () => {
+interface CustomerCreateProps {
+  onSuccess?: () => void;
+}
+
+export const CustomerCreate: React.FC<CustomerCreateProps> = ({ onSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
@@ -92,7 +96,11 @@ export const CustomerCreate: React.FC = () => {
         } as Address,
       };
       await customerService.createCustomer(customer as Customer);
-      navigate('/customers/get-all');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/customers/get-all');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create customer');
     } finally {

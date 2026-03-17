@@ -200,7 +200,7 @@ export const InvoiceItemFormWithValidation: React.FC<InvoiceItemFormWithValidati
     <div className="invoice-item-form-container">
       <form onSubmit={handleSubmit(onSubmit)} className="invoice-item-form">
         {/* Form Header */}
-        <div className="form-header">
+        <div className="form-header" id="form-pop-up">
           <h2>{formTitle}</h2>
           {isEditMode && item?.id && (
             <p className="form-subtitle">Item ID: {item.id}</p>

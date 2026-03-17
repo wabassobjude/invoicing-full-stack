@@ -57,7 +57,7 @@
 
 .form-input.error,
 .form-input.textarea.error {
-  border-color: #ef4444;
+  border-color: red;
   background-color: rgba(239, 68, 68, 0.05);
 }
 
@@ -67,7 +67,7 @@
 }
 
 .form-error {
-  color: #ef4444;
+  color: red;
   font-size: 0.85rem;
   margin: 0;
 }

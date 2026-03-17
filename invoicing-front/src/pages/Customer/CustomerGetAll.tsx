@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type TableColumn } from '../../components/DataTable';
 import ConfirmModal from '../../components/ConfirmModal';
+import Modal from '../../components/Modal';
+import CustomerCreate from './CustomerCreate';
 import { customerService } from '../../services/customerService';
 import type { Customer } from '../../types';
 import '../../styles/Pages.css';
@@ -11,6 +13,7 @@ export const CustomerGetAll: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Customer | null>(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export const CustomerGetAll: React.FC = () => {
         <h1>Customers</h1>
         <button
           className="btn btn-primary"
-          onClick={() => navigate('/customers/create')}
+          onClick={() => setIsFormModalOpen(true)}
         >
           + New Customer
         </button>
@@ -90,6 +93,17 @@ export const CustomerGetAll: React.FC = () => {
           cancelText="Cancel"
         />
       )}
+
+      <Modal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        title="Create New Customer"
+      >
+        <CustomerCreate onSuccess={() => {
+          loadCustomers();
+          setIsFormModalOpen(false);
+        }} />
+      </Modal>
     </div>
   );
 };

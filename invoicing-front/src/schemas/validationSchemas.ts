@@ -37,6 +37,7 @@ export const invoiceItemSchema = z.object({
   quantity: z.number().min(1, 'Quantity must be at least 1').int('Quantity must be a whole number'),
   unitPrice: z.number().min(0, 'Unit price must be greater than or equal to 0'),
   totalPrice: z.number().optional(),
+  invoiceId: z.string().or(z.number()).optional(),
   invoice: z.object({}).optional(),
 });
 

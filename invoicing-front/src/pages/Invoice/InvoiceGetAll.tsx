@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type TableColumn } from '../../components/DataTable';
 import ConfirmModal from '../../components/ConfirmModal';
+import Modal from '../../components/Modal';
+import InvoiceCreate from './InvoiceCreate';
 import { invoiceService } from '../../services/invoiceService';
 import type { Invoice } from '../../types';
 import '../../styles/Pages.css';
@@ -12,6 +14,7 @@ export const InvoiceGetAll: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Invoice | null>(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export const InvoiceGetAll: React.FC = () => {
         <h1>Invoices</h1>
         <button
           className="btn btn-primary"
-          onClick={() => navigate('/invoices/create')}
+          onClick={() => setIsFormModalOpen(true)}
         >
           + New Invoice
         </button>
@@ -102,6 +105,17 @@ export const InvoiceGetAll: React.FC = () => {
           cancelText="Cancel"
         />
       )}
+
+      <Modal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        title="Create New Invoice"
+      >
+        <InvoiceCreate onSuccess={() => {
+          loadInvoices();
+          setIsFormModalOpen(false);
+        }} />
+      </Modal>
     </div>
   );
 };
